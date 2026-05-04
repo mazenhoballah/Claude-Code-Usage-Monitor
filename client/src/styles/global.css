@@ -1,11 +1,38 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
 
+:root,
+[data-theme="light"] {
+  --color-bg:         #F8FAFC;
+  --color-surface:    #FFFFFF;
+  --color-surface-hi: #F1F5F9;
+  --color-border:     #E2E8F0;
+  --color-text:       #0F172A;
+  --color-muted:      #64748B;
+  --color-positive:   #22C55E;
+  --color-warning:    #F59E0B;
+  --color-danger:     #EF4444;
+  --color-accent:     #3B82F6;
+}
+
+[data-theme="dark"] {
+  --color-bg:         #020617;
+  --color-surface:    #0F172A;
+  --color-surface-hi: #1E293B;
+  --color-border:     #1E293B;
+  --color-text:       #F8FAFC;
+  --color-muted:      #94A3B8;
+  --color-positive:   #22C55E;
+  --color-warning:    #F59E0B;
+  --color-danger:     #EF4444;
+  --color-accent:     #3B82F6;
+}
+
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; }
 
 body {
-  background: #020617;
-  color: #F8FAFC;
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: "Fira Sans", system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.5;
@@ -16,7 +43,7 @@ body {
 
 button { font: inherit; color: inherit; background: transparent; border: 0; cursor: pointer; }
 button:focus-visible, a:focus-visible, [role="button"]:focus-visible {
-  outline: 2px solid #3B82F6;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
   border-radius: 4px;
 }
