@@ -51,9 +51,8 @@ const NEXT: Record<ThemeMode, ThemeMode> = {
 };
 
 export function ThemeModeProvider({ children }: { children: ReactNode }) {
-  const initialMode = readStoredMode();
-  const [mode, setModeState] = useState<ThemeMode>(() => initialMode);
-  const [resolved, setResolved] = useState<ResolvedTheme>(() => resolve(initialMode));
+  const [mode, setModeState] = useState<ThemeMode>(readStoredMode);
+  const [resolved, setResolved] = useState<ResolvedTheme>(() => resolve(readStoredMode()));
 
   // Apply resolved theme to <html data-theme=…> whenever it changes.
   useEffect(() => {
