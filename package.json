@@ -1,0 +1,16 @@
+{
+  "name": "claude-monitor",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": ["server", "client"],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,green \"yarn workspace @claude-monitor/server dev\" \"yarn workspace @claude-monitor/client dev\"",
+    "build": "yarn workspace @claude-monitor/server build && yarn workspace @claude-monitor/client build",
+    "start": "yarn workspace @claude-monitor/server start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": { "node": ">=20" }
+}
