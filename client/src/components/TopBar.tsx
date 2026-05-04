@@ -1,5 +1,6 @@
 import { Activity } from 'lucide-react';
 import { Badge } from './ui/Badge';
+import { ThemeToggle } from './ThemeToggle';
 import { theme } from '../theme';
 import type { Stats } from '../lib/types';
 import { formatRelative } from '../lib/format';
@@ -20,7 +21,8 @@ export function TopBar({ stats }: { stats: Stats | null }) {
         <Activity size={18} color={theme.color.accent} />
         <strong style={{ fontFamily: theme.font.sans, fontSize: 15 }}>Claude Monitor</strong>
       </div>
-      <div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <ThemeToggle />
         {a ? (
           <Badge tone="accent">
             <span style={{ width: 6, height: 6, borderRadius: 999, background: theme.color.positive, display: 'inline-block' }} />
