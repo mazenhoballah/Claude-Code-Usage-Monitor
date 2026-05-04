@@ -4,6 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Claude Monitor</title>
+    <script>
+      (function () {
+        try {
+          var m = localStorage.getItem('cm.themeMode') || 'light';
+          var resolved =
+            m === 'system'
+              ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+              : (m === 'dark' ? 'dark' : 'light');
+          document.documentElement.dataset.theme = resolved;
+        } catch (_) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
