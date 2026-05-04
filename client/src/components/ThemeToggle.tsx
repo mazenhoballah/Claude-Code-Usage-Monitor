@@ -4,7 +4,7 @@ import { useThemeMode } from '../lib/theme-mode';
 import type { ThemeMode } from '../lib/theme-mode';
 import { theme } from '../theme';
 
-const NEXT_LABEL: Record<ThemeMode, ThemeMode> = {
+const NEXT_MODE: Record<ThemeMode, ThemeMode> = {
   light: 'dark',
   dark: 'system',
   system: 'light',
@@ -17,8 +17,8 @@ export function ThemeToggle() {
   const Icon = mode === 'light' ? Sun : mode === 'dark' ? Moon : Monitor;
   const label =
     mode === 'system'
-      ? `Theme: system (resolved: ${resolved}). Switch to ${NEXT_LABEL[mode]}.`
-      : `Theme: ${mode}. Switch to ${NEXT_LABEL[mode]}.`;
+      ? `Theme: system (resolved: ${resolved}). Switch to ${NEXT_MODE[mode]}.`
+      : `Theme: ${mode}. Switch to ${NEXT_MODE[mode]}.`;
 
   return (
     <button
