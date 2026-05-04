@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { getAllSessions } from './sessions.js';
 import { addTotals, EMPTY_TOTALS } from '../parser/usage.js';
-import { costFor, windowFor } from '../pricing.js';
+import { costFor } from '../pricing.js';
 import type { Stats } from '../types.js';
 import { memoTTL } from '../cache.js';
 
