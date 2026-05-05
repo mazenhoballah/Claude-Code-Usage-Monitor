@@ -26,13 +26,20 @@ export function SessionDetail({ id, onClose }: { id: string; onClose: () => void
         role="dialog"
         aria-label="Session details"
         style={{
-          position: 'fixed', top: 0, right: 0, bottom: 0, width: 'min(560px, 100vw)', zIndex: 21,
+          position: 'fixed', top: 0, right: 0, bottom: 0, left: 0, zIndex: 21,
           background: theme.color.surface, borderLeft: `1px solid ${theme.color.border}`,
           display: 'flex', flexDirection: 'column',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 18px', borderBottom: `1px solid ${theme.color.border}` }}>
-          <strong>Session details</strong>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '14px 18px', borderBottom: `1px solid ${theme.color.border}` }}>
+          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+            <strong style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {data?.title ?? 'Session details'}
+            </strong>
+            {data && (
+              <span style={{ fontSize: 11, color: theme.color.muted, marginTop: 2 }}>Session details</span>
+            )}
+          </div>
           <button onClick={onClose} aria-label="Close" style={{ display: 'flex', padding: 4 }}>
             <X size={16} />
           </button>
@@ -42,6 +49,9 @@ export function SessionDetail({ id, onClose }: { id: string; onClose: () => void
             <div style={{ color: theme.color.muted }}>Loading…</div>
           ) : (
             <>
+              <h2 style={{ margin: '0 0 8px 0', fontSize: 20, fontWeight: 600, lineHeight: 1.3 }}>
+                {data.title}
+              </h2>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
                 <Badge tone="accent">{data.model}</Badge>
                 <Badge tone="muted">{data.turns} turns</Badge>

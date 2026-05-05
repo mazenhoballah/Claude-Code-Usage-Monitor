@@ -4,6 +4,7 @@ import { SummaryCards } from './components/SummaryCards';
 import { PrePromptTips } from './components/PrePromptTips';
 import { ContextPanel } from './components/ContextPanel';
 import { SessionList } from './components/SessionList';
+import { TodaySessions } from './components/TodaySessions';
 import { SessionDetail } from './components/SessionDetail';
 import { usePoll } from './hooks/usePoll';
 import { api } from './lib/api';
@@ -11,6 +12,7 @@ import { api } from './lib/api';
 export function App() {
   const stats = usePoll(api.stats, 7000);
   const context = usePoll(api.context, 30_000);
+  const sessions = usePoll(api.sessions, 15_000);
   const [selected, setSelected] = useState<string | null>(null);
 
   return (
@@ -21,12 +23,14 @@ export function App() {
         <div style={{ margin: '0 16px' }}>
           <PrePromptTips stats={stats.data} />
         </div>
-        <div style={{
-          display: 'grid', gap: 16, margin: '0 16px',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        }}>
+        <div style={{ margin: '0 16px' }}>
           <ContextPanel data={context.data} />
-          <SessionList onSelect={setSelected} />
+        </div>
+        <div style={{ margin: '0 16px' }}>
+          <TodaySessions sessions={sessions.data} onSelect={setSelected} />
+        </div>
+        <div style={{ margin: '0 16px' }}>
+          <SessionList sessions={sessions.data} onSelect={setSelected} />
         </div>
       </div>
       {selected && <SessionDetail id={selected} onClose={() => setSelected(null)} />}

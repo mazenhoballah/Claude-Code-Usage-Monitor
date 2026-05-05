@@ -1,9 +1,19 @@
 import { stat } from 'node:fs/promises';
 import { basename } from 'node:path';
-import { isAssistantLine, readJsonl } from './jsonl.js';
+import { extractUserText, isAiTitleLine, isAssistantLine, isUserLine, readJsonl } from './jsonl.js';
 import type { ProjectEntry } from './projects.js';
 import type { Session, SessionTurn, UsageTotals } from '../types.js';
 import { costFor, windowFor } from '../pricing.js';
+
+function deriveTitleFromUserText(text: string | null): string | null {
+  if (!text) return null;
+  // Take the first non-empty line, collapse whitespace, truncate.
+  const firstLine = text.split('\n').map((l) => l.trim()).find((l) => l.length > 0) ?? '';
+  const cleaned = firstLine.replace(/\s+/g, ' ').trim();
+  if (!cleaned) return null;
+  const MAX = 80;
+  return cleaned.length > MAX ? cleaned.slice(0, MAX - 1).trimEnd() + '…' : cleaned;
+}
 
 export const EMPTY_TOTALS: UsageTotals = {
   input: 0, output: 0, cacheCreate: 0, cacheRead: 0, total: 0, turns: 0,
@@ -34,12 +44,30 @@ export async function parseSessionFile(filePath: string, project: ProjectEntry):
   const totals: UsageTotals = { ...EMPTY_TOTALS };
   const perTurn: SessionTurn[] = [];
   let cumulativeContext = 0;
+  const seenRequests = new Set<string>();
+  let aiTitle: string | null = null;
+  let firstUserText: string | null = null;
 
   for await (const line of readJsonl(filePath)) {
+    if (isAiTitleLine(line) && line.aiTitle) {
+      aiTitle = line.aiTitle;
+      continue;
+    }
+    if (isUserLine(line) && firstUserText === null) {
+      const t = extractUserText(line);
+      if (t) firstUserText = t;
+    }
     if (!isAssistantLine(line)) continue;
     const ts = line.timestamp ?? '';
     if (!startedAt) startedAt = ts;
     endedAt = ts;
+    // Claude Code emits one assistant line per content block/iteration but they
+    // share a requestId and the same usage stats. Dedupe so a single API call
+    // isn't billed 2–3× over.
+    if (line.requestId) {
+      if (seenRequests.has(line.requestId)) continue;
+      seenRequests.add(line.requestId);
+    }
     const model = line.message.model;
     modelCounts.set(model, (modelCounts.get(model) ?? 0) + 1);
     const u = line.message.usage;
@@ -84,6 +112,7 @@ export async function parseSessionFile(filePath: string, project: ProjectEntry):
     turns: totals.turns,
     totals,
     cost: perTurn.reduce((s, t) => s + t.cost, 0),
+    title: aiTitle ?? deriveTitleFromUserText(firstUserText) ?? 'Untitled session',
   };
 
   return { session, perTurn, lastEventAt: fileMtime };

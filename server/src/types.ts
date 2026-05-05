@@ -36,6 +36,7 @@ export type Session = {
   turns: number;
   totals: UsageTotals;
   cost: number;
+  title: string;
 };
 
 export type SessionTurn = {

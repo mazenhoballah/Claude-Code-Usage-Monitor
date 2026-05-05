@@ -1,52 +1,80 @@
 import { Router } from 'express';
 import { getAllSessions } from './sessions.js';
-import { addTotals, EMPTY_TOTALS } from '../parser/usage.js';
+import { EMPTY_TOTALS } from '../parser/usage.js';
 import { costFor } from '../pricing.js';
-import type { Stats } from '../types.js';
+import type { Stats, UsageTotals } from '../types.js';
 import { memoTTL } from '../cache.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const WEEK_MS = 7 * DAY_MS;
 
+function startOfLocalDay(now: number): number {
+  const d = new Date(now);
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
 const compute = memoTTL(3000, async (): Promise<Stats> => {
   const all = await getAllSessions();
   const now = Date.now();
+  const todayStart = startOfLocalDay(now);
+  const weekStart = now - WEEK_MS;
 
-  let today = { ...EMPTY_TOTALS };
-  let week = { ...EMPTY_TOTALS };
-  let allTime = { ...EMPTY_TOTALS };
+  const today: UsageTotals = { ...EMPTY_TOTALS };
+  const week: UsageTotals = { ...EMPTY_TOTALS };
+  const allTime: UsageTotals = { ...EMPTY_TOTALS };
   let costToday = 0, costWeek = 0, costAll = 0;
-  let totalCacheRead = 0, totalNonCacheInput = 0, totalCacheCost = 0, totalNonCacheCost = 0;
+  let totalCacheRead = 0, totalCacheCreate = 0, totalNonCacheInput = 0;
+  let totalCostSaved = 0;
 
   for (const p of all) {
-    allTime = addTotals(allTime, p.session.totals);
-    costAll += p.session.cost;
-    const start = Date.parse(p.session.startedAt) || 0;
-    if (now - start < WEEK_MS) {
-      week = addTotals(week, p.session.totals);
-      costWeek += p.session.cost;
+    for (const t of p.perTurn) {
+      const ts = Date.parse(t.timestamp) || 0;
+      const turnTotal = t.input + t.output + t.cacheRead + t.cacheCreate;
+
+      allTime.input += t.input;
+      allTime.output += t.output;
+      allTime.cacheRead += t.cacheRead;
+      allTime.cacheCreate += t.cacheCreate;
+      allTime.total += turnTotal;
+      allTime.turns += 1;
+      costAll += t.cost;
+
+      if (ts >= weekStart) {
+        week.input += t.input;
+        week.output += t.output;
+        week.cacheRead += t.cacheRead;
+        week.cacheCreate += t.cacheCreate;
+        week.total += turnTotal;
+        week.turns += 1;
+        costWeek += t.cost;
+      }
+      if (ts >= todayStart) {
+        today.input += t.input;
+        today.output += t.output;
+        today.cacheRead += t.cacheRead;
+        today.cacheCreate += t.cacheCreate;
+        today.total += turnTotal;
+        today.turns += 1;
+        costToday += t.cost;
+      }
+
+      totalCacheRead += t.cacheRead;
+      totalCacheCreate += t.cacheCreate;
+      totalNonCacheInput += t.input;
+
+      // Savings: cacheRead bytes were billed at cache-read rate; if they had
+      // been regular input, the cost would be cacheRead * inputPrice.
+      const cachedCost = costFor(t.model, { input: 0, output: 0, cacheRead: t.cacheRead, cacheCreate: 0 });
+      const wouldBeFullCost = costFor(t.model, { input: t.cacheRead, output: 0, cacheRead: 0, cacheCreate: 0 });
+      totalCostSaved += Math.max(0, wouldBeFullCost - cachedCost);
     }
-    if (now - start < DAY_MS) {
-      today = addTotals(today, p.session.totals);
-      costToday += p.session.cost;
-    }
-    totalCacheRead += p.session.totals.cacheRead;
-    totalNonCacheInput += p.session.totals.input;
-    // cost saved = cacheRead tokens * (input price - cacheRead price)
-    const price = costFor(p.session.model, {
-      input: p.session.totals.input,
-      output: 0, cacheRead: p.session.totals.cacheRead, cacheCreate: 0,
-    });
-    totalCacheCost += price;
-    const fullPriceForCacheBytes = costFor(p.session.model, {
-      input: p.session.totals.cacheRead, output: 0, cacheRead: 0, cacheCreate: 0,
-    });
-    totalNonCacheCost += fullPriceForCacheBytes;
   }
 
-  const cacheDenom = totalCacheRead + totalNonCacheInput;
+  // Hit rate denominator includes cacheCreate (writes are misses you paid for).
+  const cacheDenom = totalCacheRead + totalCacheCreate + totalNonCacheInput;
   const hitRate = cacheDenom > 0 ? totalCacheRead / cacheDenom : 0;
-  const estCostSaved = Math.max(0, totalNonCacheCost - totalCacheCost);
+  const estCostSaved = totalCostSaved;
 
   // Active session = the one with the most recent lastEventAt within the last 30 minutes
   const sortedByMtime = [...all].sort((a, b) => b.lastEventAt - a.lastEventAt);

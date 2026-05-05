@@ -12,7 +12,7 @@ export function PrePromptTips({ stats }: { stats: Stats | null }) {
 
   if (!a) {
     return (
-      <Card style={{ margin: '0 16px' }}>
+      <Card>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: theme.color.muted }}>
           <Info size={16} /> Start a Claude Code session to see live pre-prompt insights here.
         </div>
@@ -32,7 +32,7 @@ export function PrePromptTips({ stats }: { stats: Stats | null }) {
   if (warm && ctxPct < 0.7) tips.push({ icon: <Flame size={14} color={theme.color.positive} />, text: 'Cache warm and context healthy — cheap follow-ups expected.' });
 
   return (
-    <Card style={{ margin: '0 16px' }}>
+    <Card>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
         <div style={{ flex: '1 1 280px', minWidth: 240 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, alignItems: 'baseline' }}>

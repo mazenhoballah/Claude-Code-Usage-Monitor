@@ -11,7 +11,9 @@ export function formatCost(usd: number): string {
 }
 
 export function formatPct(p: number): string {
-  return (p * 100).toFixed(0) + '%';
+  const v = p * 100;
+  if (v >= 10) return v.toFixed(1) + '%';
+  return v.toFixed(2) + '%';
 }
 
 export function formatDuration(ms: number): string {

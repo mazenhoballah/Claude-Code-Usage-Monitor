@@ -15,6 +15,7 @@ export type Session = {
   id: string; project: string; cwd: string;
   startedAt: string; endedAt: string; durationMs: number;
   model: string; turns: number; totals: UsageTotals; cost: number;
+  title: string;
 };
 export type SessionTurn = {
   timestamp: string; model: string;
