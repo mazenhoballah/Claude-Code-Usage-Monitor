@@ -72,18 +72,12 @@ No database, no external dependencies beyond the Node.js ecosystem.
 
 Costs are computed locally using the public Anthropic pricing table (Opus / Sonnet / Haiku). All dollar figures are labeled **est.** — they match API pricing and are a close approximation for Claude Code subscription usage.
 
-| Model | Input | Output | Cache Read | Cache Write |
-|---|---|---|---|---|
-| claude-opus-4-7 | $15/Mtok | $75/Mtok | $1.5/Mtok | $18.75/Mtok |
-| claude-opus-4-7 [1M] | $30/Mtok | $150/Mtok | $3.0/Mtok | $37.5/Mtok |
-| claude-sonnet-4-6 | $3/Mtok | $15/Mtok | $0.3/Mtok | $3.75/Mtok |
-| claude-haiku-4-5 | $1/Mtok | $5/Mtok | $0.1/Mtok | $1.25/Mtok |
-
----
-
-## Compatibility
-
-macOS and Linux. Paths use `os.homedir()` — no hardcoded separators.
+| Model                | Input    | Output    | Cache Read | Cache Write |
+| -------------------- | -------- | --------- | ---------- | ----------- |
+| claude-opus-4-7      | $15/Mtok | $75/Mtok  | $1.5/Mtok  | $18.75/Mtok |
+| claude-opus-4-7 [1M] | $30/Mtok | $150/Mtok | $3.0/Mtok  | $37.5/Mtok  |
+| claude-sonnet-4-6    | $3/Mtok  | $15/Mtok  | $0.3/Mtok  | $3.75/Mtok  |
+| claude-haiku-4-5     | $1/Mtok  | $5/Mtok   | $0.1/Mtok  | $1.25/Mtok  |
 
 ---
 

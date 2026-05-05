@@ -21,7 +21,7 @@ function MetricCard({ label, primary, secondary, accent }: { label: string; prim
 
 export function SummaryCards({ stats }: { stats: Stats | null }) {
   const grid: React.CSSProperties = {
-    display: 'grid', gap: 16, margin: '0 16px',
+    display: 'grid', gap: 16,
     gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
   };
 

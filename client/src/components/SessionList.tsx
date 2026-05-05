@@ -30,10 +30,13 @@ function SortTh({ label, col, active, dir, onSort, right }: {
     <th
       onClick={() => onSort(col)}
       style={{
-        fontWeight: 500, padding: '4px 0', textAlign: right ? 'right' : 'left',
+        fontWeight: 500, padding: '6px 0', textAlign: right ? 'right' : 'left',
         cursor: 'pointer', userSelect: 'none',
         color: isActive ? theme.color.text : theme.color.muted,
         whiteSpace: 'nowrap',
+        position: 'sticky', top: 0,
+        background: theme.color.surface,
+        borderBottom: `1px solid ${theme.color.border}`,
       }}
     >
       {label}{' '}
@@ -60,54 +63,56 @@ export function SessionList({ sessions, onSelect }: { sessions: Session[] | null
   const sorted = sessions ? sortSessions(sessions, sortKey, sortDir) : null;
 
   return (
-    <Card style={{ height: '100%' }}>
-      <h3 style={{ margin: 0, fontSize: 14, fontWeight: 600, letterSpacing: 0.4, textTransform: 'uppercase', color: theme.color.muted, marginBottom: 12 }}>
-        Recent sessions
+    <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <h3 style={{ margin: '0 0 0 0', flexShrink: 0, fontSize: 14, fontWeight: 600, letterSpacing: 0.4, textTransform: 'uppercase', color: theme.color.muted }}>
+        All sessions
       </h3>
       {!sorted ? (
-        <div style={{ color: theme.color.muted, fontSize: 13 }}>Loading…</div>
+        <div style={{ color: theme.color.muted, fontSize: 13, marginTop: 12 }}>Loading…</div>
       ) : sorted.length === 0 ? (
-        <div style={{ color: theme.color.muted, fontSize: 13 }}>No sessions yet.</div>
+        <div style={{ color: theme.color.muted, fontSize: 13, marginTop: 12 }}>No sessions yet.</div>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-          <thead>
-            <tr style={{ textAlign: 'left' }}>
-              <SortTh label="When"    col="when"    active={sortKey} dir={sortDir} onSort={handleSort} />
-              <SortTh label="Title"   col="title"   active={sortKey} dir={sortDir} onSort={handleSort} />
-              <SortTh label="Project" col="project" active={sortKey} dir={sortDir} onSort={handleSort} />
-              <SortTh label="Tokens"  col="tokens"  active={sortKey} dir={sortDir} onSort={handleSort} right />
-              <SortTh label="Cost"    col="cost"    active={sortKey} dir={sortDir} onSort={handleSort} right />
-            </tr>
-          </thead>
-          <tbody>
-            {sorted.map((s) => (
-              <tr
-                key={s.id}
-                onClick={() => onSelect(s.id)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === 'Enter') onSelect(s.id); }}
-                style={{ borderTop: `1px solid ${theme.color.border}`, cursor: 'pointer' }}
-              >
-                <td style={{ padding: '8px 0' }}>
-                  <div>{formatRelative(s.startedAt)}</div>
-                  <div style={{ fontSize: 11, color: theme.color.muted }}>{formatDuration(s.durationMs)} · {s.turns}t</div>
-                </td>
-                <td style={{ padding: '8px 12px 8px 0', maxWidth: 320 }}>
-                  <div title={s.title} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {s.title}
-                  </div>
-                </td>
-                <td style={{ padding: '8px 0' }}>
-                  <div>{s.project}</div>
-                  <div style={{ marginTop: 2 }}><Badge tone="muted">{s.model}</Badge></div>
-                </td>
-                <td className="mono" style={{ padding: '8px 0', textAlign: 'right' }}>{formatTokens(s.totals.total)}</td>
-                <td className="mono" style={{ padding: '8px 0', textAlign: 'right', color: theme.color.muted }}>{formatCost(s.cost)}</td>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', marginTop: 4 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+            <thead>
+              <tr style={{ textAlign: 'left' }}>
+                <SortTh label="When"    col="when"    active={sortKey} dir={sortDir} onSort={handleSort} />
+                <SortTh label="Title"   col="title"   active={sortKey} dir={sortDir} onSort={handleSort} />
+                <SortTh label="Project" col="project" active={sortKey} dir={sortDir} onSort={handleSort} />
+                <SortTh label="Tokens"  col="tokens"  active={sortKey} dir={sortDir} onSort={handleSort} right />
+                <SortTh label="Cost"    col="cost"    active={sortKey} dir={sortDir} onSort={handleSort} right />
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {sorted.map((s) => (
+                <tr
+                  key={s.id}
+                  onClick={() => onSelect(s.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter') onSelect(s.id); }}
+                  style={{ borderTop: `1px solid ${theme.color.border}`, cursor: 'pointer' }}
+                >
+                  <td style={{ padding: '7px 0' }}>
+                    <div>{formatRelative(s.startedAt)}</div>
+                    <div style={{ fontSize: 11, color: theme.color.muted }}>{formatDuration(s.durationMs)} · {s.turns}t</div>
+                  </td>
+                  <td style={{ padding: '7px 12px 7px 0', maxWidth: 320 }}>
+                    <div title={s.title} style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {s.title}
+                    </div>
+                  </td>
+                  <td style={{ padding: '7px 0' }}>
+                    <div>{s.project}</div>
+                    <div style={{ marginTop: 2 }}><Badge tone="muted">{s.model}</Badge></div>
+                  </td>
+                  <td className="mono" style={{ padding: '7px 0', textAlign: 'right' }}>{formatTokens(s.totals.total)}</td>
+                  <td className="mono" style={{ padding: '7px 0', textAlign: 'right', color: theme.color.muted }}>{formatCost(s.cost)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </Card>
   );

@@ -16,7 +16,6 @@ const FALLBACK_COLOR = '#94a3b8';
 
 function colorFor(model: string): string {
   if (model in MODEL_COLORS) return MODEL_COLORS[model];
-  // Match dated variants e.g. claude-haiku-4-5-20251001
   for (const [key, color] of Object.entries(MODEL_COLORS)) {
     if (model.startsWith(key)) return color;
   }
@@ -38,45 +37,46 @@ export function ModelDonut({ breakdown }: { breakdown: ModelBreakdown[] | null }
   const total = data.reduce((s, d) => s + d.cost, 0);
 
   return (
-    <Card style={{ height: '100%' }}>
-      <div style={{ color: theme.color.muted, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 12 }}>
+    <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flexShrink: 0, color: theme.color.muted, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 8 }}>
         By Model
       </div>
       {!breakdown || data.length === 0 ? (
         <div style={{ color: theme.color.muted, fontSize: 13 }}>No data yet.</div>
       ) : (
         <>
-          <ResponsiveContainer width="100%" height={160}>
-            <PieChart>
-              <Pie
-                data={data}
-                dataKey="cost"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                innerRadius={45}
-                outerRadius={72}
-                paddingAngle={2}
-                strokeWidth={0}
-              >
-                {data.map((d) => (
-                  <Cell key={d.model} fill={colorFor(d.model)} />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(v: unknown) => [formatCost(v as number), 'Cost']}
-                contentStyle={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 8, fontSize: 12 }}
-                labelStyle={{ color: 'var(--color-text)' }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
+          <div style={{ flex: 1, minHeight: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data}
+                  dataKey="cost"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius="42%"
+                  outerRadius="88%"
+                  paddingAngle={2}
+                  strokeWidth={0}
+                >
+                  {data.map((d) => (
+                    <Cell key={d.model} fill={colorFor(d.model)} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(v: unknown) => [formatCost(v as number), 'Cost']}
+                  contentStyle={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 8, fontSize: 12 }}
+                  labelStyle={{ color: 'var(--color-text)' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div style={{ flexShrink: 0, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3px 8px', marginTop: 6 }}>
             {data.map((d) => (
-              <div key={d.model} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
-                <span style={{ width: 10, height: 10, borderRadius: '50%', background: colorFor(d.model), flexShrink: 0 }} />
-                <span style={{ flex: 1, color: theme.color.text }}>{d.name}</span>
-                <span className="mono" style={{ color: theme.color.muted }}>{formatCost(d.cost)}</span>
-                <span style={{ color: theme.color.muted, fontSize: 11 }}>({total > 0 ? ((d.cost / total) * 100).toFixed(0) : 0}%)</span>
+              <div key={d.model} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, minWidth: 0 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: colorFor(d.model), flexShrink: 0 }} />
+                <span style={{ color: theme.color.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{d.name}</span>
+                <span style={{ color: theme.color.muted, fontSize: 10, flexShrink: 0 }}>{total > 0 ? ((d.cost / total) * 100).toFixed(0) : 0}%</span>
               </div>
             ))}
           </div>

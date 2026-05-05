@@ -27,24 +27,26 @@ export function DailyCostBar({ sessions }: { sessions: Session[] | null }) {
   const data = days.map(({ date, label }) => ({ label, cost: byDate.get(date) ?? 0 }));
 
   return (
-    <Card>
-      <div style={{ color: theme.color.muted, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 16 }}>
+    <Card style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flexShrink: 0, color: theme.color.muted, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 12 }}>
         Last 7 Days — Cost
       </div>
-      <ResponsiveContainer width="100%" height={160}>
-        <BarChart data={data} margin={{ top: 0, right: 0, left: -16, bottom: 0 }}>
-          <CartesianGrid vertical={false} stroke="var(--color-border)" />
-          <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'var(--color-muted)' }} axisLine={false} tickLine={false} />
-          <YAxis tickFormatter={(v) => `$${v.toFixed(0)}`} tick={{ fontSize: 11, fill: 'var(--color-muted)' }} axisLine={false} tickLine={false} />
-          <Tooltip
-            formatter={(v: unknown) => [formatCost(v as number), 'Cost']}
-            contentStyle={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 8, fontSize: 12 }}
-            labelStyle={{ color: 'var(--color-text)' }}
-            cursor={{ fill: 'var(--color-surface-hi)' }}
-          />
-          <Bar dataKey="cost" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={48} />
-        </BarChart>
-      </ResponsiveContainer>
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 0, right: 0, left: -16, bottom: 0 }}>
+            <CartesianGrid vertical={false} stroke="var(--color-border)" />
+            <XAxis dataKey="label" tick={{ fontSize: 11, fill: 'var(--color-muted)' }} axisLine={false} tickLine={false} />
+            <YAxis tickFormatter={(v) => `$${v.toFixed(0)}`} tick={{ fontSize: 11, fill: 'var(--color-muted)' }} axisLine={false} tickLine={false} />
+            <Tooltip
+              formatter={(v: unknown) => [formatCost(v as number), 'Cost']}
+              contentStyle={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 8, fontSize: 12 }}
+              labelStyle={{ color: 'var(--color-text)' }}
+              cursor={{ fill: 'var(--color-surface-hi)' }}
+            />
+            <Bar dataKey="cost" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={48} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </Card>
   );
 }
