@@ -29,7 +29,37 @@ export type UserLine = {
   };
 };
 
-export type AnyLine = AssistantLine | AiTitleLine | UserLine | { type: string; [k: string]: unknown };
+// Sub-agent turns (hooks, parallel agents) are stored as progress records
+// with the actual assistant message nested at data.message.message.
+type ProgressInner = {
+  type: 'assistant';
+  timestamp?: string;
+  message: { id?: string; model: string; usage: RawUsage };
+};
+type ProgressLine = {
+  type: 'progress';
+  uuid?: string;
+  data?: { message?: ProgressInner };
+};
+
+export type AnyLine = AssistantLine | AiTitleLine | UserLine | ProgressLine | { type: string; [k: string]: unknown };
+
+/** Extract an AssistantLine-compatible object from a progress record, or null if it has no usage. */
+export function extractProgressAssistant(line: AnyLine): AssistantLine | null {
+  if (line.type !== 'progress') return null;
+  const p = line as ProgressLine;
+  const inner = p.data?.message;
+  if (inner?.type !== 'assistant') return null;
+  const msg = inner.message;
+  if (!msg?.model || !msg?.usage) return null;
+  return {
+    type: 'assistant',
+    timestamp: inner.timestamp ?? '',
+    sessionId: '',
+    requestId: msg.id,          // deduplicate by message id
+    message: { model: msg.model, usage: msg.usage },
+  };
+}
 
 export function isAiTitleLine(line: AnyLine): line is AiTitleLine {
   return line.type === 'ai-title' && typeof (line as AiTitleLine).aiTitle === 'string';

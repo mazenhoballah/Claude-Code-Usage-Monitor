@@ -1,7 +1,7 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { Card } from '../ui/Card';
 import { theme } from '../../theme';
-import type { Session } from '../../lib/types';
+import type { ModelBreakdown } from '../../lib/types';
 import { formatCost } from '../../lib/format';
 
 const MODEL_COLORS: Record<string, string> = {
@@ -14,6 +14,15 @@ const MODEL_COLORS: Record<string, string> = {
 };
 const FALLBACK_COLOR = '#94a3b8';
 
+function colorFor(model: string): string {
+  if (model in MODEL_COLORS) return MODEL_COLORS[model];
+  // Match dated variants e.g. claude-haiku-4-5-20251001
+  for (const [key, color] of Object.entries(MODEL_COLORS)) {
+    if (model.startsWith(key)) return color;
+  }
+  return FALLBACK_COLOR;
+}
+
 function shortName(model: string): string {
   if (model.includes('opus-4-7') && model.includes('1m')) return 'Opus 4.7 [1M]';
   if (model.includes('opus-4-7')) return 'Opus 4.7';
@@ -24,16 +33,8 @@ function shortName(model: string): string {
   return model;
 }
 
-export function ModelDonut({ sessions }: { sessions: Session[] | null }) {
-  const byModel = new Map<string, number>();
-  for (const s of sessions ?? []) {
-    byModel.set(s.model, (byModel.get(s.model) ?? 0) + s.cost);
-  }
-
-  const data = [...byModel.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .map(([model, cost]) => ({ name: shortName(model), cost, model }));
-
+export function ModelDonut({ breakdown }: { breakdown: ModelBreakdown[] | null }) {
+  const data = (breakdown ?? []).map((b) => ({ name: shortName(b.model), cost: b.cost, turns: b.turns, model: b.model }));
   const total = data.reduce((s, d) => s + d.cost, 0);
 
   return (
@@ -41,7 +42,7 @@ export function ModelDonut({ sessions }: { sessions: Session[] | null }) {
       <div style={{ color: theme.color.muted, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 12 }}>
         By Model
       </div>
-      {!sessions || data.length === 0 ? (
+      {!breakdown || data.length === 0 ? (
         <div style={{ color: theme.color.muted, fontSize: 13 }}>No data yet.</div>
       ) : (
         <>
@@ -59,7 +60,7 @@ export function ModelDonut({ sessions }: { sessions: Session[] | null }) {
                 strokeWidth={0}
               >
                 {data.map((d) => (
-                  <Cell key={d.model} fill={MODEL_COLORS[d.model] ?? FALLBACK_COLOR} />
+                  <Cell key={d.model} fill={colorFor(d.model)} />
                 ))}
               </Pie>
               <Tooltip
@@ -72,7 +73,7 @@ export function ModelDonut({ sessions }: { sessions: Session[] | null }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
             {data.map((d) => (
               <div key={d.model} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
-                <span style={{ width: 10, height: 10, borderRadius: '50%', background: MODEL_COLORS[d.model] ?? FALLBACK_COLOR, flexShrink: 0 }} />
+                <span style={{ width: 10, height: 10, borderRadius: '50%', background: colorFor(d.model), flexShrink: 0 }} />
                 <span style={{ flex: 1, color: theme.color.text }}>{d.name}</span>
                 <span className="mono" style={{ color: theme.color.muted }}>{formatCost(d.cost)}</span>
                 <span style={{ color: theme.color.muted, fontSize: 11 }}>({total > 0 ? ((d.cost / total) * 100).toFixed(0) : 0}%)</span>

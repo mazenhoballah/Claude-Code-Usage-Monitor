@@ -1,6 +1,6 @@
 import { stat } from 'node:fs/promises';
 import { basename } from 'node:path';
-import { extractUserText, isAiTitleLine, isAssistantLine, isUserLine, readJsonl } from './jsonl.js';
+import { extractProgressAssistant, extractUserText, isAiTitleLine, isAssistantLine, isUserLine, readJsonl } from './jsonl.js';
 import type { ProjectEntry } from './projects.js';
 import type { Session, SessionTurn, UsageTotals } from '../types.js';
 import { costFor, windowFor } from '../pricing.js';
@@ -43,7 +43,6 @@ export async function parseSessionFile(filePath: string, project: ProjectEntry):
   const modelCounts = new Map<string, number>();
   const totals: UsageTotals = { ...EMPTY_TOTALS };
   const perTurn: SessionTurn[] = [];
-  let cumulativeContext = 0;
   const seenRequests = new Set<string>();
   let aiTitle: string | null = null;
   let firstUserText: string | null = null;
@@ -57,20 +56,22 @@ export async function parseSessionFile(filePath: string, project: ProjectEntry):
       const t = extractUserText(line);
       if (t) firstUserText = t;
     }
-    if (!isAssistantLine(line)) continue;
-    const ts = line.timestamp ?? '';
+    // Promote sub-agent progress records to assistant lines
+    const assistantLine = isAssistantLine(line) ? line : extractProgressAssistant(line);
+    if (!assistantLine) continue;
+    const ts = assistantLine.timestamp ?? '';
     if (!startedAt) startedAt = ts;
     endedAt = ts;
     // Claude Code emits one assistant line per content block/iteration but they
     // share a requestId and the same usage stats. Dedupe so a single API call
     // isn't billed 2–3× over.
-    if (line.requestId) {
-      if (seenRequests.has(line.requestId)) continue;
-      seenRequests.add(line.requestId);
+    if (assistantLine.requestId) {
+      if (seenRequests.has(assistantLine.requestId)) continue;
+      seenRequests.add(assistantLine.requestId);
     }
-    const model = line.message.model;
+    const model = assistantLine.message.model;
     modelCounts.set(model, (modelCounts.get(model) ?? 0) + 1);
-    const u = line.message.usage;
+    const u = assistantLine.message.usage;
     const input = u.input_tokens ?? 0;
     const output = u.output_tokens ?? 0;
     const cacheRead = u.cache_read_input_tokens ?? 0;
@@ -83,14 +84,16 @@ export async function parseSessionFile(filePath: string, project: ProjectEntry):
     totals.total += input + output + cacheRead + cacheCreate;
     totals.turns += 1;
 
-    cumulativeContext += input + cacheCreate; // rough: what's loaded into the prompt
     const win = windowFor(model);
+    // Context % = all tokens loaded into this prompt / context window.
+    // input + cacheCreate + cacheRead = total prompt tokens for this turn.
+    const contextPct = Math.min(1, (input + cacheCreate + cacheRead) / win);
     perTurn.push({
       timestamp: ts,
       model,
       input, output, cacheRead, cacheCreate,
       cost: costFor(model, { input, output, cacheRead, cacheCreate }),
-      cumulativeContextPct: Math.min(1, cumulativeContext / win),
+      cumulativeContextPct: contextPct,
     });
   }
 

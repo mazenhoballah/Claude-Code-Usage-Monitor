@@ -28,7 +28,7 @@ export function App() {
         {/* Charts row 1: daily cost (wide) + model donut (narrow) */}
         <div style={{ margin: '0 16px', display: 'grid', gridTemplateColumns: '1fr 280px', gap: 16 }}>
           <DailyCostBar sessions={sessions.data} />
-          <ModelDonut sessions={sessions.data} />
+          <ModelDonut breakdown={stats.data?.modelBreakdown ?? null} />
         </div>
 
         {/* Charts row 2: top projects + token breakdown */}

@@ -1,10 +1,13 @@
 // Re-export server types so client and server stay in sync.
 // We duplicate rather than import across packages to avoid TS project refs.
 export type UsageTotals = { input: number; output: number; cacheCreate: number; cacheRead: number; total: number; turns: number };
+export type ModelBreakdown = { model: string; cost: number; turns: number };
+
 export type Stats = {
   totals: { today: UsageTotals; week: UsageTotals; allTime: UsageTotals };
   cache: { hitRate: number; tokensSaved: number; estCostSaved: number };
   cost: { today: number; week: number; allTime: number };
+  modelBreakdown: ModelBreakdown[];
   activeSession: {
     sessionId: string; project: string; cwd: string;
     startedAt: string; lastEventAt: string; turns: number; contextPct: number;

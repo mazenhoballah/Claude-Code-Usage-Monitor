@@ -17,10 +17,13 @@ export type ActiveSession = {
   contextPct: number;
 } | null;
 
+export type ModelBreakdown = { model: string; cost: number; turns: number };
+
 export type Stats = {
   totals: { today: UsageTotals; week: UsageTotals; allTime: UsageTotals };
   cache: { hitRate: number; tokensSaved: number; estCostSaved: number };
   cost: { today: number; week: number; allTime: number };
+  modelBreakdown: ModelBreakdown[];
   activeSession: ActiveSession;
   topToolHint?: { name: string; pctOfInput: number } | null;
 };

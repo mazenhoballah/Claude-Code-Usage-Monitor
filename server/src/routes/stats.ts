@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getAllSessions } from './sessions.js';
 import { EMPTY_TOTALS } from '../parser/usage.js';
 import { costFor } from '../pricing.js';
-import type { Stats, UsageTotals } from '../types.js';
+import type { Stats, UsageTotals, ModelBreakdown } from '../types.js';
 import { memoTTL } from '../cache.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -26,6 +26,7 @@ const compute = memoTTL(3000, async (): Promise<Stats> => {
   let costToday = 0, costWeek = 0, costAll = 0;
   let totalCacheRead = 0, totalCacheCreate = 0, totalNonCacheInput = 0;
   let totalCostSaved = 0;
+  const modelMap = new Map<string, { cost: number; turns: number }>();
 
   for (const p of all) {
     for (const t of p.perTurn) {
@@ -68,8 +69,19 @@ const compute = memoTTL(3000, async (): Promise<Stats> => {
       const cachedCost = costFor(t.model, { input: 0, output: 0, cacheRead: t.cacheRead, cacheCreate: 0 });
       const wouldBeFullCost = costFor(t.model, { input: t.cacheRead, output: 0, cacheRead: 0, cacheCreate: 0 });
       totalCostSaved += Math.max(0, wouldBeFullCost - cachedCost);
+
+      // Per-model breakdown from actual turn model (not dominant session model)
+      const mKey = t.model === '<synthetic>' ? null : t.model;
+      if (mKey) {
+        const prev = modelMap.get(mKey) ?? { cost: 0, turns: 0 };
+        modelMap.set(mKey, { cost: prev.cost + t.cost, turns: prev.turns + 1 });
+      }
     }
   }
+
+  const modelBreakdown: ModelBreakdown[] = [...modelMap.entries()]
+    .map(([model, v]) => ({ model, ...v }))
+    .sort((a, b) => b.cost - a.cost);
 
   // Hit rate denominator includes cacheCreate (writes are misses you paid for).
   const cacheDenom = totalCacheRead + totalCacheCreate + totalNonCacheInput;
@@ -98,6 +110,7 @@ const compute = memoTTL(3000, async (): Promise<Stats> => {
     totals: { today, week, allTime },
     cache: { hitRate, tokensSaved: totalCacheRead, estCostSaved },
     cost: { today: costToday, week: costWeek, allTime: costAll },
+    modelBreakdown,
     activeSession,
     topToolHint,
   };
