@@ -6,6 +6,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { SessionsPage } from './pages/SessionsPage';
 import { TipsPage } from './pages/TipsPage';
 import { FormulasPage } from './pages/FormulasPage';
+import { WhatsNewPage } from './pages/WhatsNewPage';
 import { usePoll } from './hooks/usePoll';
 import { api } from './lib/api';
 
@@ -15,7 +16,7 @@ export function App() {
   const [selected, setSelected] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
 
-  const scrollable = activeTab === 'tips' || activeTab === 'formulas';
+  const scrollable = activeTab === 'tips' || activeTab === 'formulas' || activeTab === 'whats-new';
 
   return (
     <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -24,13 +25,14 @@ export function App() {
         flex: 1,
         overflowY: scrollable ? 'auto' : 'hidden',
         overflowX: 'hidden',
-        padding: '0 180px 16px',
+        padding: '14px 180px 20px',
         boxSizing: 'border-box',
       }}>
         {activeTab === 'dashboard' && <DashboardPage stats={stats.data} sessions={sessions.data} />}
         {activeTab === 'sessions'  && <SessionsPage sessions={sessions.data} onSelect={setSelected} />}
-        {activeTab === 'tips'      && <TipsPage />}
-        {activeTab === 'formulas'  && <FormulasPage />}
+        {activeTab === 'tips'       && <TipsPage />}
+        {activeTab === 'formulas'   && <FormulasPage />}
+        {activeTab === 'whats-new'  && <WhatsNewPage />}
       </div>
       {selected && <SessionDetail id={selected} onClose={() => setSelected(null)} />}
     </div>
