@@ -66,3 +66,5 @@ Reusable checklists for common multi-file tasks — read these before starting:
 - Vite binds to IPv6 `::1` on macOS — curl-test with `http://localhost:5173`, not `127.0.0.1:5173`.
 - Dashboard shows zero data → confirm `~/.claude/projects/` has session JSONLs.
 - Cache hit rate is genuinely 80–96% on real sessions; `input_tokens` in JSONL is non-cached input only.
+- `.claude/settings.local.json` is machine-local — never commit it; stage `.claude/skills/` explicitly.
+- Rebuild code-review-graph after large merges: use `mcp__code-review-graph__build_or_update_graph_tool` with `full_rebuild: true`.

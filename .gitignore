@@ -7,3 +7,5 @@ dist
 .env.local
 client/dist
 server/dist
+.playwright-mcp/
+.claude/settings.local.json
