@@ -12,13 +12,14 @@ export const theme = {
     accent:    'var(--color-accent)',
   },
   font: {
-    mono: '"Fira Code", ui-monospace, monospace',
-    sans: '"Fira Sans", system-ui, sans-serif',
+    mono:    '"Fira Code", ui-monospace, monospace',
+    sans:    '"Fira Sans", system-ui, sans-serif',
+    display: '"Syne", "Fira Sans", sans-serif',
   },
-  radius: { sm: 6, md: 10, lg: 16 },
+  radius: { sm: 6, md: 10, lg: 14 },
   shadow: {
-    glow: '0 0 12px rgba(59, 130, 246, 0.25)',
-    card: '0 4px 24px rgba(0, 0, 0, 0.4)',
+    glow: 'var(--shadow-glow)',
+    card: 'var(--shadow-card)',
   },
   transition: '150ms ease-out',
 } as const;

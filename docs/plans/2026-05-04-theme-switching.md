@@ -29,6 +29,7 @@ Each task below produces a self-contained, type-checking commit.
 ### Task 1: Replace `theme.ts` literal colors with CSS-variable references
 
 **Files:**
+
 - Modify: `client/src/theme.ts`
 
 - [ ] **Step 1: Rewrite the `color` block to reference CSS variables**
@@ -38,16 +39,16 @@ Replace lines 2–13 of `client/src/theme.ts` so the file reads exactly:
 ```ts
 export const theme = {
   color: {
-    bg:        'var(--color-bg)',
-    surface:   'var(--color-surface)',
+    bg: 'var(--color-bg)',
+    surface: 'var(--color-surface)',
     surfaceHi: 'var(--color-surface-hi)',
-    border:    'var(--color-border)',
-    text:      'var(--color-text)',
-    muted:     'var(--color-muted)',
-    positive:  'var(--color-positive)',
-    warning:   'var(--color-warning)',
-    danger:    'var(--color-danger)',
-    accent:    'var(--color-accent)',
+    border: 'var(--color-border)',
+    text: 'var(--color-text)',
+    muted: 'var(--color-muted)',
+    positive: 'var(--color-positive)',
+    warning: 'var(--color-warning)',
+    danger: 'var(--color-danger)',
+    accent: 'var(--color-accent)',
   },
   font: {
     mono: '"Fira Code", ui-monospace, monospace',
@@ -88,6 +89,7 @@ git commit -m "refactor(client/theme): route color tokens through CSS variables"
 ### Task 2: Define light and dark variable values in `global.css`
 
 **Files:**
+
 - Modify: `client/src/styles/global.css`
 
 - [ ] **Step 1: Replace the file contents**
@@ -98,59 +100,82 @@ Overwrite `client/src/styles/global.css` with:
 @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
 
 :root,
-[data-theme="light"] {
-  --color-bg:         #F8FAFC;
-  --color-surface:    #FFFFFF;
-  --color-surface-hi: #F1F5F9;
-  --color-border:     #E2E8F0;
-  --color-text:       #0F172A;
-  --color-muted:      #64748B;
-  --color-positive:   #22C55E;
-  --color-warning:    #F59E0B;
-  --color-danger:     #EF4444;
-  --color-accent:     #3B82F6;
+[data-theme='light'] {
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-hi: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-positive: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-accent: #3b82f6;
 }
 
-[data-theme="dark"] {
-  --color-bg:         #020617;
-  --color-surface:    #0F172A;
-  --color-surface-hi: #1E293B;
-  --color-border:     #1E293B;
-  --color-text:       #F8FAFC;
-  --color-muted:      #94A3B8;
-  --color-positive:   #22C55E;
-  --color-warning:    #F59E0B;
-  --color-danger:     #EF4444;
-  --color-accent:     #3B82F6;
+[data-theme='dark'] {
+  --color-bg: #020617;
+  --color-surface: #0f172a;
+  --color-surface-hi: #1e293b;
+  --color-border: #1e293b;
+  --color-text: #f8fafc;
+  --color-muted: #94a3b8;
+  --color-positive: #22c55e;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-accent: #3b82f6;
 }
 
-* { box-sizing: border-box; }
-html, body, #root { height: 100%; margin: 0; }
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
 
 body {
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: "Fira Sans", system-ui, sans-serif;
+  font-family: 'Fira Sans', system-ui, sans-serif;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-.mono { font-family: "Fira Code", ui-monospace, monospace; }
+.mono {
+  font-family: 'Fira Code', ui-monospace, monospace;
+}
 
-button { font: inherit; color: inherit; background: transparent; border: 0; cursor: pointer; }
-button:focus-visible, a:focus-visible, [role="button"]:focus-visible {
+button {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+button:focus-visible,
+a:focus-visible,
+[role='button']:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+  }
 }
 ```
 
 Notes:
+
 - Light is at `:root`, matching the spec's "default to light" decision.
 - The `body` rule now uses `var(--color-bg)` / `var(--color-text)`.
 - The focus ring color is also routed through `var(--color-accent)` so it stays correct in both modes.
@@ -182,6 +207,7 @@ git commit -m "feat(client/styles): define light + dark theme variables"
 ### Task 3: Create `theme-mode` module (Context, hook, provider, cycle)
 
 **Files:**
+
 - Create: `client/src/lib/theme-mode.tsx`
 
 - [ ] **Step 1: Create the file**
@@ -189,7 +215,14 @@ git commit -m "feat(client/styles): define light + dark theme variables"
 Create `client/src/lib/theme-mode.tsx` with exactly this content:
 
 ```tsx
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import type { ReactNode } from 'react';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
@@ -225,9 +258,11 @@ function writeStoredMode(mode: ThemeMode): void {
 }
 
 function systemPrefersDark(): boolean {
-  return typeof window !== 'undefined'
-    && typeof window.matchMedia === 'function'
-    && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches
+  );
 }
 
 function resolve(mode: ThemeMode): ResolvedTheme {
@@ -243,7 +278,9 @@ const NEXT: Record<ThemeMode, ThemeMode> = {
 
 export function ThemeModeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<ThemeMode>(() => readStoredMode());
-  const [resolved, setResolved] = useState<ResolvedTheme>(() => resolve(readStoredMode()));
+  const [resolved, setResolved] = useState<ResolvedTheme>(() =>
+    resolve(readStoredMode()),
+  );
 
   // Apply resolved theme to <html data-theme=…> whenever it changes.
   useEffect(() => {
@@ -270,7 +307,7 @@ export function ThemeModeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const cycle = useCallback(() => {
-    setModeState(prev => {
+    setModeState((prev) => {
       const next = NEXT[prev];
       writeStoredMode(next);
       return next;
@@ -282,12 +319,17 @@ export function ThemeModeProvider({ children }: { children: ReactNode }) {
     [mode, resolved, setMode, cycle],
   );
 
-  return <ThemeModeContext.Provider value={value}>{children}</ThemeModeContext.Provider>;
+  return (
+    <ThemeModeContext.Provider value={value}>
+      {children}
+    </ThemeModeContext.Provider>
+  );
 }
 
 export function useThemeMode(): ThemeModeContextValue {
   const ctx = useContext(ThemeModeContext);
-  if (!ctx) throw new Error('useThemeMode must be used within <ThemeModeProvider>');
+  if (!ctx)
+    throw new Error('useThemeMode must be used within <ThemeModeProvider>');
   return ctx;
 }
 ```
@@ -309,6 +351,7 @@ git commit -m "feat(client/lib): add theme-mode context, hook, and cycle"
 ### Task 4: Wire `<ThemeModeProvider>` in `main.tsx`
 
 **Files:**
+
 - Modify: `client/src/main.tsx`
 
 - [ ] **Step 1: Wrap `<App />` with the provider**
@@ -329,7 +372,7 @@ createRoot(root).render(
     <ThemeModeProvider>
       <App />
     </ThemeModeProvider>
-  </StrictMode>
+  </StrictMode>,
 );
 ```
 
@@ -355,6 +398,7 @@ git commit -m "feat(client/main): mount ThemeModeProvider"
 ### Task 5: Add the FOUC-prevention inline script to `index.html`
 
 **Files:**
+
 - Modify: `client/index.html`
 
 - [ ] **Step 1: Add the inline script**
@@ -374,8 +418,12 @@ Replace `client/index.html` contents with:
           var m = localStorage.getItem('cm.themeMode') || 'light';
           var resolved =
             m === 'system'
-              ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-              : (m === 'dark' ? 'dark' : 'light');
+              ? matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+              : m === 'dark'
+                ? 'dark'
+                : 'light';
           document.documentElement.dataset.theme = resolved;
         } catch (_) {
           document.documentElement.dataset.theme = 'light';
@@ -397,7 +445,8 @@ The storage key string `'cm.themeMode'` matches `STORAGE_KEY` in `theme-mode.tsx
 Run: `cd client && yarn dev`. Open the page. In DevTools console:
 
 ```js
-localStorage.setItem('cm.themeMode', 'dark'); location.reload();
+localStorage.setItem('cm.themeMode', 'dark');
+location.reload();
 ```
 
 Expected: the page reloads and paints **directly** in dark mode — no white flash.
@@ -405,7 +454,8 @@ Expected: the page reloads and paints **directly** in dark mode — no white fla
 Then:
 
 ```js
-localStorage.setItem('cm.themeMode', 'system'); location.reload();
+localStorage.setItem('cm.themeMode', 'system');
+location.reload();
 ```
 
 Expected: paints in whichever mode matches the OS, no flash. Stop the dev server.
@@ -422,6 +472,7 @@ git commit -m "feat(client/html): inline pre-mount theme resolution to prevent F
 ### Task 6: Build the `<ThemeToggle />` component
 
 **Files:**
+
 - Create: `client/src/components/ThemeToggle.tsx`
 
 - [ ] **Step 1: Create the component**
@@ -453,7 +504,7 @@ export function ThemeToggle() {
 
   return (
     <button
-      type="button"
+      type='button'
       onClick={cycle}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
@@ -469,8 +520,7 @@ export function ThemeToggle() {
         background: hover ? theme.color.surfaceHi : 'transparent',
         color: theme.color.text,
         transition: theme.transition,
-      }}
-    >
+      }}>
       <Icon size={16} />
     </button>
   );
@@ -494,6 +544,7 @@ git commit -m "feat(client/components): add ThemeToggle button"
 ### Task 7: Render `<ThemeToggle />` in the TopBar
 
 **Files:**
+
 - Modify: `client/src/components/TopBar.tsx`
 
 - [ ] **Step 1: Update TopBar to render the toggle**
@@ -511,28 +562,44 @@ import { formatRelative } from '../lib/format';
 export function TopBar({ stats }: { stats: Stats | null }) {
   const a = stats?.activeSession;
   return (
-    <div style={{
-      position: 'sticky', top: 16, zIndex: 10,
-      margin: '16px',
-      padding: '12px 20px',
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      background: theme.color.surface, border: `1px solid ${theme.color.border}`,
-      borderRadius: theme.radius.lg,
-      boxShadow: theme.shadow.card,
-    }}>
+    <div
+      style={{
+        position: 'sticky',
+        top: 16,
+        zIndex: 10,
+        margin: '16px',
+        padding: '12px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: theme.color.surface,
+        border: `1px solid ${theme.color.border}`,
+        borderRadius: theme.radius.lg,
+        boxShadow: theme.shadow.card,
+      }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <Activity size={18} color={theme.color.accent} />
-        <strong style={{ fontFamily: theme.font.sans, fontSize: 15 }}>Claude Monitor</strong>
+        <strong style={{ fontFamily: theme.font.sans, fontSize: 15 }}>
+          Claude Monitor
+        </strong>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <ThemeToggle />
         {a ? (
-          <Badge tone="accent">
-            <span style={{ width: 6, height: 6, borderRadius: 999, background: theme.color.positive, display: 'inline-block' }} />
+          <Badge tone='accent'>
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: 999,
+                background: theme.color.positive,
+                display: 'inline-block',
+              }}
+            />
             active: {a.project} · last event {formatRelative(a.lastEventAt)}
           </Badge>
         ) : (
-          <Badge tone="muted">no active session</Badge>
+          <Badge tone='muted'>no active session</Badge>
         )}
       </div>
     </div>

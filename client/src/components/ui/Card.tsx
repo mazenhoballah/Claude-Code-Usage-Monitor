@@ -6,9 +6,9 @@ export function Card({ children, onClick, style }: { children: ReactNode; onClic
     background: theme.color.surface,
     border: `1px solid ${theme.color.border}`,
     borderRadius: theme.radius.lg,
-    padding: 20,
+    padding: 18,
     boxShadow: theme.shadow.card,
-    transition: `background ${theme.transition}, border-color ${theme.transition}`,
+    transition: `box-shadow 180ms ease, border-color 180ms ease`,
     cursor: onClick ? 'pointer' : 'default',
     ...style,
   };
@@ -19,8 +19,18 @@ export function Card({ children, onClick, style }: { children: ReactNode; onClic
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
       style={base}
-      onMouseEnter={(e) => { if (onClick) e.currentTarget.style.background = theme.color.surfaceHi; }}
-      onMouseLeave={(e) => { if (onClick) e.currentTarget.style.background = theme.color.surface; }}
+      onMouseEnter={(e) => {
+        if (onClick) {
+          e.currentTarget.style.borderColor = 'var(--color-accent)';
+          e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (onClick) {
+          e.currentTarget.style.borderColor = 'var(--color-border)';
+          e.currentTarget.style.boxShadow = 'var(--shadow-card)';
+        }
+      }}
     >
       {children}
     </div>

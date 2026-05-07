@@ -1,30 +1,50 @@
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap');
 
 :root,
-[data-theme="light"] {
-  --color-bg:         #F8FAFC;
+[data-theme='light'] {
+  --color-bg:         #F5F5F7;
   --color-surface:    #FFFFFF;
-  --color-surface-hi: #F1F5F9;
-  --color-border:     #E2E8F0;
-  --color-text:       #0F172A;
-  --color-muted:      #64748B;
-  --color-positive:   #22C55E;
-  --color-warning:    #F59E0B;
-  --color-danger:     #EF4444;
-  --color-accent:     #3B82F6;
+  --color-surface-hi: #F9F9FB;
+  --color-border:     #E5E7EB;
+  --color-text:       #0F0F12;
+  --color-muted:      #6B7280;
+  --color-positive:   #059669;
+  --color-warning:    #D97706;
+  --color-danger:     #DC2626;
+  --color-accent:     #0891B2;
+
+  --shadow-card:       0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+  --shadow-card-hover: 0 2px 6px rgba(0,0,0,0.10), 0 8px 20px rgba(0,0,0,0.08);
+  --shadow-glow:       0 0 0 3px rgba(8,145,178,0.12);
+
+  --chart-cost:        #DC2626;
+  --chart-input:       #7C82F0;
+  --chart-output:      #8B5CF6;
+  --chart-cache-read:  #059669;
+  --chart-cache-write: #D97706;
 }
 
-[data-theme="dark"] {
-  --color-bg:         #020617;
-  --color-surface:    #0F172A;
-  --color-surface-hi: #1E293B;
-  --color-border:     #1E293B;
-  --color-text:       #F8FAFC;
-  --color-muted:      #94A3B8;
-  --color-positive:   #22C55E;
+[data-theme='dark'] {
+  --color-bg:         #0F0F11;
+  --color-surface:    #181818;
+  --color-surface-hi: #242424;
+  --color-border:     rgba(255,255,255,0.10);
+  --color-text:       #ECECF1;
+  --color-muted:      #9CA3AF;
+  --color-positive:   #10B981;
   --color-warning:    #F59E0B;
   --color-danger:     #EF4444;
-  --color-accent:     #3B82F6;
+  --color-accent:     #06B6D4;
+
+  --shadow-card:       0 0 0 1px rgba(255,255,255,0.08), 0 4px 16px rgba(0,0,0,0.50);
+  --shadow-card-hover: 0 0 0 1px rgba(6,182,212,0.15), 0 8px 24px rgba(0,0,0,0.60);
+  --shadow-glow:       0 0 16px rgba(6,182,212,0.14);
+
+  --chart-cost:        #EF4444;
+  --chart-input:       #3B82F6;
+  --chart-output:      #EC4899;
+  --chart-cache-read:  #10B981;
+  --chart-cache-write: #F97316;
 }
 
 * { box-sizing: border-box; }
@@ -33,21 +53,54 @@ html, body, #root { height: 100%; margin: 0; }
 body {
   background: var(--color-bg);
   color: var(--color-text);
-  font-family: "Fira Sans", system-ui, sans-serif;
-  font-size: 14px;
+  font-family: 'Fira Sans', system-ui, sans-serif;
+  font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-.mono { font-family: "Fira Code", ui-monospace, monospace; }
+[data-theme='dark'] body {
+  background-image:
+    radial-gradient(ellipse 60% 40% at 20% 60%, rgba(6,182,212,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 80% 20%, rgba(99,102,241,0.03) 0%, transparent 60%);
+  background-attachment: fixed;
+}
+
+.mono    { font-family: 'Fira Code', ui-monospace, monospace; }
+.display { font-family: 'Syne', 'Fira Sans', sans-serif; }
 
 button { font: inherit; color: inherit; background: transparent; border: 0; cursor: pointer; }
-button:focus-visible, a:focus-visible, [role="button"]:focus-visible {
+
+button:focus-visible,
+a:focus-visible,
+[role='button']:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
+.pulse-dot {
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.50); }
+  50%       { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+}
+
+.shimmer {
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { opacity: 0.4; }
+  50%  { opacity: 0.7; }
+  100% { opacity: 0.4; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0s !important; transition-duration: 0s !important; }
+  *, *::before, *::after {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+  }
 }
