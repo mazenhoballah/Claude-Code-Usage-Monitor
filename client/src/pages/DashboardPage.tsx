@@ -8,37 +8,49 @@ import type { Stats, Session } from '../lib/types';
 
 export function DashboardPage({ stats, sessions }: { stats: Stats | null; sessions: Session[] | null }) {
   return (
-    <div style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 12,
-      boxSizing: 'border-box',
-    }}>
-      {/* Summary cards */}
+    <div
+      style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 14,
+        boxSizing: 'border-box',
+      }}
+    >
+      {/* Metric summary strip */}
       <div style={{ flexShrink: 0 }}>
         <SummaryCards stats={stats} />
       </div>
 
       {/* Chart row 1: daily cost (wide) + model donut (narrow) */}
-      <div style={{
-        flex: 1, minHeight: 0,
-        display: 'grid', gridTemplateColumns: '1fr 300px', gap: 12,
-      }}>
+      <div
+        style={{
+          flex: '1.1',
+          minHeight: 0,
+          display: 'grid',
+          gridTemplateColumns: '1fr 260px',
+          gap: 14,
+        }}
+      >
         <DailyCostBar sessions={sessions} />
         <ModelDonut breakdown={stats?.modelBreakdown ?? null} />
       </div>
 
       {/* Chart row 2: top projects + token breakdown */}
-      <div style={{
-        flex: 1, minHeight: 0,
-        display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12,
-      }}>
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: 14,
+        }}
+      >
         <TopProjectsBar sessions={sessions} />
         <TokenStackedBar sessions={sessions} />
       </div>
 
-      {/* Active session tips */}
+      {/* Active session insights */}
       <div style={{ flexShrink: 0 }}>
         <PrePromptTips stats={stats} />
       </div>
