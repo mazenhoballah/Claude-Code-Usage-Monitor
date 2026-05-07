@@ -44,6 +44,17 @@ Key client files:
 - **No tests in v1** (per spec §10).
 - **Server binds `127.0.0.1`** — never change to `0.0.0.0`.
 
+## Project Skills
+
+Reusable checklists for common multi-file tasks — read these before starting:
+
+| Task | Skill file |
+|------|------------|
+| Add a new API endpoint | `.claude/skills/add-route.md` |
+| Add a new chart component | `.claude/skills/add-chart.md` |
+| Add a new dashboard page/tab | `.claude/skills/add-page.md` |
+| Add a new tracked metric (parser → UI) | `.claude/skills/add-metric.md` |
+
 ## Do not touch without thinking twice
 
 - `docs/specs/*` — frozen. Write a new spec instead of editing.
