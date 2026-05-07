@@ -8,6 +8,13 @@ export type RawUsage = {
   cache_read_input_tokens?: number;
 };
 
+export type ToolUseBlock = {
+  type: 'tool_use';
+  id: string;
+  name: string;
+  input: Record<string, unknown>;
+};
+
 export type AssistantLine = {
   type: 'assistant';
   timestamp: string;
@@ -17,6 +24,7 @@ export type AssistantLine = {
   message: {
     model: string;
     usage: RawUsage;
+    content?: Array<ToolUseBlock | { type: string }>;
   };
 };
 
@@ -36,10 +44,16 @@ type ProgressInner = {
   timestamp?: string;
   message: { id?: string; model: string; usage: RawUsage };
 };
-type ProgressLine = {
+export type ProgressLine = {
   type: 'progress';
   uuid?: string;
-  data?: { message?: ProgressInner };
+  toolUseID?: string;
+  parentToolUseID?: string;
+  data?: {
+    message?: ProgressInner;
+    type?: string;
+    agentId?: string;
+  };
 };
 
 export type AnyLine = AssistantLine | AiTitleLine | UserLine | ProgressLine | { type: string; [k: string]: unknown };
@@ -108,4 +122,12 @@ export function isAssistantLine(line: AnyLine): line is AssistantLine {
     typeof (line as AssistantLine).message === 'object' &&
     typeof (line as AssistantLine).message?.usage === 'object'
   );
+}
+
+export function isProgressLine(line: AnyLine): line is ProgressLine {
+  return line.type === 'progress';
+}
+
+export function isAgentProgressLine(line: AnyLine): line is ProgressLine {
+  return line.type === 'progress' && (line as ProgressLine).data?.type === 'agent_progress';
 }

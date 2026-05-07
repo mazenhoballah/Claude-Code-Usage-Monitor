@@ -5,7 +5,8 @@ import { costFor } from '../pricing.js';
 import type { Stats, UsageTotals, ModelBreakdown } from '../types.js';
 import { memoTTL } from '../cache.js';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+const H5_MS   = 5 * 60 * 60 * 1000;
+const DAY_MS  = 24 * 60 * 60 * 1000;
 const WEEK_MS = 7 * DAY_MS;
 
 function startOfLocalDay(now: number): number {
@@ -18,12 +19,14 @@ const compute = memoTTL(3000, async (): Promise<Stats> => {
   const all = await getAllSessions();
   const now = Date.now();
   const todayStart = startOfLocalDay(now);
-  const weekStart = now - WEEK_MS;
+  const weekStart  = now - WEEK_MS;
+  const fiveHStart = now - H5_MS;
 
   const today: UsageTotals = { ...EMPTY_TOTALS };
-  const week: UsageTotals = { ...EMPTY_TOTALS };
+  const week: UsageTotals  = { ...EMPTY_TOTALS };
   const allTime: UsageTotals = { ...EMPTY_TOTALS };
-  let costToday = 0, costWeek = 0, costAll = 0;
+  const fiveH: UsageTotals = { ...EMPTY_TOTALS };
+  let costToday = 0, costWeek = 0, costAll = 0, costFiveH = 0;
   let totalCacheRead = 0, totalCacheCreate = 0, totalNonCacheInput = 0;
   let totalCostSaved = 0;
   const modelMap = new Map<string, { cost: number; turns: number }>();
@@ -58,6 +61,15 @@ const compute = memoTTL(3000, async (): Promise<Stats> => {
         today.total += turnTotal;
         today.turns += 1;
         costToday += t.cost;
+      }
+      if (ts >= fiveHStart) {
+        fiveH.input += t.input;
+        fiveH.output += t.output;
+        fiveH.cacheRead += t.cacheRead;
+        fiveH.cacheCreate += t.cacheCreate;
+        fiveH.total += turnTotal;
+        fiveH.turns += 1;
+        costFiveH += t.cost;
       }
 
       totalCacheRead += t.cacheRead;
@@ -107,9 +119,9 @@ const compute = memoTTL(3000, async (): Promise<Stats> => {
   const topToolHint = null;
 
   return {
-    totals: { today, week, allTime },
+    totals: { today, week, allTime, fiveH },
     cache: { hitRate, tokensSaved: totalCacheRead, estCostSaved },
-    cost: { today: costToday, week: costWeek, allTime: costAll },
+    cost: { today: costToday, week: costWeek, allTime: costAll, fiveH: costFiveH },
     modelBreakdown,
     activeSession,
     topToolHint,

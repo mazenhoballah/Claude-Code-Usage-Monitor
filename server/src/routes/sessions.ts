@@ -31,5 +31,5 @@ sessionsRouter.get('/sessions/:id', async (req, res) => {
   const all = await getAllSessions();
   const found = all.find((p) => p.session.id === req.params.id);
   if (!found) return res.status(404).json({ error: 'not_found' });
-  res.json({ ...found.session, perTurn: found.perTurn });
+  res.json({ ...found.session, perTurn: found.perTurn, agents: found.agents, requests: found.requests });
 });
